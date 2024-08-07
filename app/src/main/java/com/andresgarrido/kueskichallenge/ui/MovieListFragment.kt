@@ -12,6 +12,7 @@ import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,6 +30,15 @@ class MovieListFragment : Fragment() {
     private val binding get() = _binding!!
     private val adapter = MovieListAdapter()
 
+    lateinit var mainMenu: Menu
+
+    // Infinite scrolling variables
+    lateinit var layoutManager: LinearLayoutManager
+    var isLoading: Boolean = true
+    var pastItemsVisible: Int = 0
+    var visibleItemCount: Int = 0
+    var totalItemCount: Int = 0
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -36,19 +46,11 @@ class MovieListFragment : Fragment() {
         _binding = FragmentMovieListBinding.inflate(inflater, container, false)
         val view = binding.root
         initViews()
-        viewModel.lastPageMovies.observe(viewLifecycleOwner) { data ->
-            adapter.setData(data.toTypedArray())
-            isLoading = false
-        }
-        viewModel.error.observe(viewLifecycleOwner) { error ->
-            Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
-            isLoading = false
-        }
+        setupObservers()
+
         viewModel.fetchNextPage()
         return view
     }
-
-    lateinit var mainMenu: Menu
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -62,6 +64,7 @@ class MovieListFragment : Fragment() {
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                // Switching visibility when list mode or grid mode are selected
                 menuItem.setVisible(false)
                 when (menuItem.itemId) {
                     R.id.action_grid_view -> {
@@ -86,13 +89,12 @@ class MovieListFragment : Fragment() {
         _binding = null
     }
 
-    var isLoading: Boolean = true
-    var pastItemsVisible: Int = 0
-    var visibleItemCount: Int = 0
-    var totalItemCount: Int = 0
-    lateinit var layoutManager: LinearLayoutManager
 
     private fun initViews() {
+        adapter.itemClicked.observe(viewLifecycleOwner) {
+            val action = MovieListFragmentDirections.actionMovieListFragmentToMovieDetailsFragment(it)
+            view?.let { it1 -> Navigation.findNavController(it1).navigate(action) }
+        }
         binding.apply {
             layoutManager = LinearLayoutManager(context)
             recyclerView.layoutManager = layoutManager
@@ -110,10 +112,20 @@ class MovieListFragment : Fragment() {
                             isLoading = true
                             viewModel.fetchNextPage()
                         }
-
                     }
                 }
             })
+        }
+    }
+
+    private fun setupObservers() {
+        viewModel.lastPageMovies.observe(viewLifecycleOwner) { data ->
+            adapter.setData(data.toTypedArray())
+            isLoading = false
+        }
+        viewModel.error.observe(viewLifecycleOwner) { error ->
+            Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+            isLoading = false
         }
     }
 }

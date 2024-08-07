@@ -20,7 +20,7 @@
         android:label="MovieDetailsFragment"
         tools:layout="@layout/fragment_movie_details"  >
         <argument
-            android:name="movieId"
-            app:argType="integer" />
+            android:name="movie"
+            app:argType="com.andresgarrido.kueskichallenge.data.model.Movie" />
     </fragment>
 </navigation>

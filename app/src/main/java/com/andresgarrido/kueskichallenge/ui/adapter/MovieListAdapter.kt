@@ -10,13 +10,14 @@ import coil.load
 import com.andresgarrido.kueskichallenge.R
 import com.andresgarrido.kueskichallenge.data.model.Movie
 import com.andresgarrido.kueskichallenge.databinding.MovieListItemBinding
+import com.andresgarrido.kueskichallenge.helper.getMidSizePosterUrl
 
 class MovieListAdapter : RecyclerView.Adapter<MovieListAdapter.MyViewHolder>() {
     private var dataset = mutableListOf<Movie>()
     val baseImageUrl = "https://image.tmdb.org/t/p/w500"
 
-    private val _itemClicked = MutableLiveData<Int>()
-    val itemClicked: LiveData<Int> = _itemClicked
+    private val _itemClicked = MutableLiveData<Movie>()
+    val itemClicked: LiveData<Movie> = _itemClicked
 
 
     class MyViewHolder(
@@ -33,7 +34,7 @@ class MovieListAdapter : RecyclerView.Adapter<MovieListAdapter.MyViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val binding = MovieListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return MyViewHolder(binding) { position ->
-            _itemClicked.value = position
+            _itemClicked.value = dataset[position]
         }
     }
 
@@ -42,7 +43,7 @@ class MovieListAdapter : RecyclerView.Adapter<MovieListAdapter.MyViewHolder>() {
         val item = dataset[position]
         holder.binding.apply {
             movieItemTitle.text = item.originalTitle
-            movieItemImage.load("$baseImageUrl${item.posterPath}")
+            movieItemImage.load(item.getMidSizePosterUrl())
             movieItemReleaseDate.text = context.getString(R.string.release_date, item.releaseDate)
             movieItemVoteAverage.text = context.getString(R.string.vote_average, item.voteAverage)
         }

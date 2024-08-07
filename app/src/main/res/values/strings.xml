@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">KueskiChallenge</string>
+    <string name="movie_list">Movie List</string>
+    <string name="release_date">Release date: <b>%s</b></string>
+    <string name="vote_average">Vote Average: <b>%.1f/10</b></string>
+    <string name="overview">Overview</string>
+    <string name="list_mode">List Mode</string>
+    <string name="grid_mode">Grid Mode</string>
+</resources>
